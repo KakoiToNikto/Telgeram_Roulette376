@@ -117,49 +117,6 @@ async def rules(call: types.CallbackQuery):
 #• <b>Инвеhтор</b>: игрок может использовать инветор, чтобы поменять текущий патрон на противоположный(боевой на холостой и наоборот).
 
 
-#--------------------------------
-#Запуск игры
-
-@roulette_handler_router.callback_query(F.data == "get_game")
-async def get_the_game(call: types.CallbackQuery):
-    call.message.reply(f"{call.from_user.username} присоединился к игре!\n<i>Игра начинается, удачи!🤞</i>")
-    await asyncio.sleep(1)    #ждет 1 секунду
-    # Дальше здесь часть гемплея - отправляется гифка, художественное сообщение и начинается игра:
-    #  рассчет патрон и выбор первого стрелющего. Это можно сделать в отдельном роутере
-
-@roulette_handler_router.callback_query(F.data == "break_game")
-@roulette_handler_router.message(F.text.lower().contains("стоп"))
-async def stop_matchmaking(call: types.CallbackQuery):
-    await call.message.reply(f"Подбор игроков/игра остановлена. Чтобы снова начать подбор игроков в игру, напиши команду /play !")
-    #тут написать функцию прерывания сессии подбора игроков
-    # (в БД кладется что игрок сыграл игру только после окончания игры)
-
-
-@roulette_handler_router.message(Command("play"))
-async def matchmaking(message: types.Message):
-    if message.chat.type == types.ChatType.PRIVATE:
-        await message.reply(
-            textwrap.dedent(
-            """
-            Чтобы начать игру, тебе нужно добавить меня в группу с другим игроком(-ами).
-            Игра начнется после команды /play в группе, когда второй игрок подтвердит участие.
-            """
-            ).strip()
-        )
-    else: #(messgae.chat.type == types.ChatType.GROUP or message.chat.type == types.ChatType.SUPERGROUP)
-        await message.reply(
-            textwrap.dedent(
-                """
-                <b>ПОДБОР ИГРОКОВ. <i>ВОЙДУТ ДВОЕ, ВЫЙДЕТ ТОЛЬКО ОДИН</i></b>
-                Как только второй игрок войдет в эту игру, ваша дуэль на смерть начнется!
-                """
-            ).strip(),
-            reply_markup=before_game_menu()
-        )
-
-#Тут разобраться и написать функцию, которая будет запускаться после команды play
-# - делает сессию и ожидает набора 2-х разных юзеров. После набора начинает игру
-# (дальше идут геймплейные функции)
 
 #Еще 1 задача: разделить этот файл на роутеры и файлы по задачам
 

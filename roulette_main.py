@@ -6,19 +6,26 @@ from dotenv import load_dotenv, find_dotenv
 import os
 
 from roulette_commands import commands
-from roulette_handler import roulette_handler_router
+
+from handlers.roulette_handler import roulette_handler_router
+from handlers.lobby import lobby_router
+from handlers.gameplay import gameplay_router
+
+
 
 load_dotenv(find_dotenv())
 Bot = Bot(token=os.getenv("token"), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+
 dp = Dispatcher()
 dp.include_router(roulette_handler_router)
+dp.include_router(lobby_router)
+dp.include_router(gameplay_router)
+
 
 async def Main():
-    await dp.start_polling(Bot)
     await Bot.delete_webhook(drop_pending_updates=True)
     await Bot.set_my_commands(commands=commands, scope=types.BotCommandScopeDefault())
-    # когда пользователь пишет боту в личке, он увидит этот набор команд, а в группе - нет, т.к. там другой scope
-    
+    await dp.start_polling(Bot)    
 
 if __name__ == "__main__":
     import asyncio
