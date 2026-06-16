@@ -114,10 +114,7 @@ async def rules(call: types.CallbackQuery):
         reply_markup=get_back_menu(),
     )
 
-#@roulette_handler_router.callback_query(F.data == "break_game")
-
 #• <b>Инветор</b>: игрок может использовать инветор, чтобы поменять текущий патрон на противоположный(боевой на холостой и наоборот).
-
 
 
 #Еще 1 задача: разделить этот файл на роутеры и файлы по задачам
