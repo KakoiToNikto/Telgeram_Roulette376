@@ -29,3 +29,5 @@ def before_game_menu():
     InlineKeyboardButton(text="Отменить подбор игроков 🔙", callback_data="break_game")
 )
     return menu.as_markup()
+
+#Реализовать обе функции before_game_menu() позже

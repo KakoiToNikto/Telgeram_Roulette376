@@ -32,6 +32,9 @@ async def matchmaking(message: types.Message):
             reply_markup=before_game_menu()
         )
         return True    #отдается True, если компанда play была вызвана в группе, и начинается подбор игроков
+    
+
+
 
 
 @lobby_router.callback_query(F.data == "break_game")

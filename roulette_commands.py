@@ -4,5 +4,5 @@ commands = [
     BotCommand(command='start', description='Запуск бота'),
     BotCommand(command='play', description='Начать игру'),
     BotCommand(command='creator', description='Создатель бота'),
-    
+    #BotCommand(command='break_game', description='Прервать игру')
 ]
