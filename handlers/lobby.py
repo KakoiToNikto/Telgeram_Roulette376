@@ -1,9 +1,9 @@
-#В это файле будет сессия подбора игроков после вызова команды /play в группе
-
 import asyncio
 import textwrap
+
 from Python.TGB.Russian_Ruolette_376.roulette_menu import before_game_menu
 from session import GameSession
+from tracking import active_games, active_lobbies
 
 from aiogram import types, Router
 from aiogram.filters import Command, F
@@ -37,6 +37,9 @@ async def matchmaking(message: types.Message):
         p1 = message.from_user.id   #первый игрок - это тот, кто вызвал команду /play - сразу определили его
         lobby.players.append(p1)
 
+        chat_id = message.chat.id
+        active_lobbies[chat_id] = lobby    #добавляем лобби, созданное игроком в активные лобби, чтобы можно было отслеживать, кто в игре
+
     else:   #(messgae.chat.type == types.ChatType.PRIVATE)
          await message.reply(
             textwrap.dedent(
@@ -53,20 +56,16 @@ async def matchmaking(message: types.Message):
 @lobby_router.message(F.text.lower().contains("стоп"))
 @lobby_router.message(Command("break_game"))
 async def stop_matchmaking(event):      # event может быть CallbackQuery или Message
-    # try:
-    #     message_obj = event.message
-    # except Exception:
-    #     message_obj = event     #calback_query не имеет атрибута message, поэтому в случае ошибки при попытке доступа к нему, мы просто используем сам объект события (который является Message) для получения chat_id и отправки ответа пользователю.
+    lobby.players.clear()
+    #помимо удаления игроков из лобби, если понадобится, нужно позже прерывать
+    #абсолютно все процессы, связанные с игрой
 
-    # chat_id = message_obj.chat.id
-    # # останавливаем лобби для этого чата, если есть
-    # if lobby and lobby.players and lobby.players[0] and chat_id == message_obj.chat.id:
-    #     lobby.stop()
+    breaking_text = f"Подбор игроков остановлен. Игрок {event.from_user.username} прервал игру"
+    if isinstance(event, types.Message):
+        await event.reply(breaking_text)
+    elif isinstance(event, types.CallbackQuery):
+        await event.message.reply(breaking_text)
 
-    # await message_obj.reply("Подбор игроков/игра остановлена. Чтобы снова начать подбор игроков в игру, напиши команду /play !")
-    #тут написать функцию прерывания сессии подбора игроков
-    #(в БД кладется что игрок сыграл игру только после окончания игры)
-    pass
 
 @lobby_router.callback_query(F.data == "get_game")
 async def get_the_game(call: types.CallbackQuery):
@@ -83,12 +82,17 @@ async def get_the_game(call: types.CallbackQuery):
         await call.message.reply("Пока нет игроков, которые начали игру! Напиши команду /play в группе, чтобы начать игру!")
         return
     
+    chat_id = call.message.chat.id
     lobby.players.append(p2)    #добавляем второго игрока в список игроков
-    
+
+    game_session = GameSession(lobby.players, chat_id)
+    active_games[chat_id] = game_session    #добавляем сессию игры в активные игры, чтобы можно было отслеживать, кто в игре
+
+
     await call.message.reply(f"{call.from_user.username} присоединился к игре!\n<i>Игра начинается, удачи!🤞</i>")
     await asyncio.sleep(1)
     
-    game_session = GameSession(lobby.players, call.message.chat.id)
-    
-    # Здесь можно добавить логику старта игры, например:
-    # await start_game(call.message, game_session)
+
+    #пока не уверен в системе - сессия создается только после присоединения ВТОРОГО игрока, но может быть нужно
+    #будет создавать сессию сразу после вызова команды /play, чтобы можно было прерывать игру в любой момент
+

@@ -1,10 +1,6 @@
 from random import choice, random
-
-from aiogram import Router
-
 from lobby import lobby
 
-Session_router = Router()
 
 async def bullets_position(real, fake):
     bullets = [1] * real + [0] * fake
