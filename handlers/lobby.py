@@ -16,7 +16,8 @@ class Lobby:
     def __init__(self):
         self.players = []  #список игроков, которые вступили в игру
 
-lobby = Lobby()
+    # def clear(self):
+    #     pass
 
 
 @lobby_router.message(Command("play"))
@@ -32,13 +33,24 @@ async def matchmaking(message: types.Message):
             reply_markup=before_game_menu()
         )
 
-        lobby.clear()   #очищаем список игроков, чтобы не было проблем с предыдущими играми
+        if chat_id in active_lobbies:
+            await message.reply(
+                "Подбор игроков уже идёт."
+            )
+            return
+
+        if chat_id in active_games:
+            await message.reply(
+                "Игра уже запущена."
+            )
+            return
+        
+        lobby = Lobby()
+        chat_id = message.chat.id
 
         p1 = message.from_user.id   #первый игрок - это тот, кто вызвал команду /play - сразу определили его
         lobby.players.append(p1)
-
-        chat_id = message.chat.id
-        active_lobbies[chat_id] = lobby    #добавляем лобби, созданное игроком в активные лобби, чтобы можно было отслеживать, кто в игре
+        active_lobbies[chat_id] = lobby
 
     else:   #(messgae.chat.type == types.ChatType.PRIVATE)
          await message.reply(
@@ -56,9 +68,19 @@ async def matchmaking(message: types.Message):
 @lobby_router.message(F.text.lower().contains("стоп"))
 @lobby_router.message(Command("break_game"))
 async def stop_matchmaking(event):      # event может быть CallbackQuery или Message
-    lobby.players.clear()
-    #помимо удаления игроков из лобби, если понадобится, нужно позже прерывать
-    #абсолютно все процессы, связанные с игрой
+    chat_id = event.message.chat.id
+
+    if chat_id not in active_lobbies and chat_id not in active_games:
+        explaning_text = "У вас нет ни активного подбора игроков, ни активной игры"
+    if isinstance(event, types.Message):
+            await event.reply(explaning_text)
+    elif isinstance(event, types.CallbackQuery):
+            await event.message.reply(explaning_text)
+    if chat_id in active_lobbies:
+        del active_lobbies[chat_id]
+    if chat_id in active_games:
+        del active_games[chat_id]
+
 
     breaking_text = f"Подбор игроков остановлен. Игрок {event.from_user.username} прервал игру"
     if isinstance(event, types.Message):
@@ -69,7 +91,17 @@ async def stop_matchmaking(event):      # event может быть CallbackQuer
 
 @lobby_router.callback_query(F.data == "get_game")
 async def get_the_game(call: types.CallbackQuery):
+    chat_id = call.message.chat.id
+
+    lobby = active_lobbies.get(chat_id)
+    if lobby is None:
+        await call.message.reply(
+            "Активного подбора игроков нет."
+        )
+        return
+
     p2 = call.from_user.id      #второй игрок - это тот, кто нажал кнопку "Вступить в игру"
+    lobby = active_lobbies[chat_id]
 
     if p2 == lobby.players[0]:      #если второй игрок - это тот же, кто вызвал команду /play, то он не может вступить в игру
         await call.message.reply("Ты уже в игре! Жди второго игрока...")
@@ -82,12 +114,11 @@ async def get_the_game(call: types.CallbackQuery):
         await call.message.reply("Пока нет игроков, которые начали игру! Напиши команду /play в группе, чтобы начать игру!")
         return
     
-    chat_id = call.message.chat.id
     lobby.players.append(p2)    #добавляем второго игрока в список игроков
 
     game_session = GameSession(lobby.players, chat_id)
     active_games[chat_id] = game_session    #добавляем сессию игры в активные игры, чтобы можно было отслеживать, кто в игре
-
+    del active_lobbies[chat_id]    #лобби нам больше не нужно, есть только игра
 
     await call.message.reply(f"{call.from_user.username} присоединился к игре!\n<i>Игра начинается, удачи!🤞</i>")
     await asyncio.sleep(1)
