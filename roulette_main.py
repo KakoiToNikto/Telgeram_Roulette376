@@ -25,7 +25,10 @@ dp.include_router(gameplay_router)
 async def Main():
     await Bot.delete_webhook(drop_pending_updates=True)
     await Bot.set_my_commands(commands=commands, scope=types.BotCommandScopeDefault())
-    await dp.start_polling(Bot)    
+    try:
+        await dp.start_polling(Bot)
+    except (KeyboardInterrupt, SystemExit):
+        print("Остановка бота, системная ошибка. Нужно перезапустить.\nThe bot is stopping, system error. Need to restart.")
 
 if __name__ == "__main__":
     import asyncio
