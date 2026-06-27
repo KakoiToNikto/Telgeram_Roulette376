@@ -1,6 +1,5 @@
 import random
 
-
 def bullets_position(real, fake):
     bullets = [1] * real + [0] * fake
     random.shuffle(bullets)
@@ -11,7 +10,7 @@ class GameSession:
     def __init__(self, player_ids: list[int], chat_id: int):
         """
         player_ids: список из двух ID игроков (из lobby.players)
-        chat_id: ID чата (для логирования или БД)
+        chat_id: ID чата (для логгирования или БД)
         """
         p1_id, p2_id = player_ids
         self.HP = 5
@@ -43,9 +42,11 @@ class GameSession:
 
         self.player1 = p1_id    #для более приятной читаемости
         self.player2 = p2_id
-
+        
     def next_turn(self):       #на будущее, в gameplay пригодится
         if self.current_player == self.player1:
             self.current_player = self.player2
         else:
             self.current_player = self.player1
+
+

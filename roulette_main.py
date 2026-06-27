@@ -12,7 +12,6 @@ from handlers.lobby import lobby_router
 from handlers.gameplay import gameplay_router
 
 
-
 load_dotenv(find_dotenv())
 Bot = Bot(token=os.getenv("token"), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 

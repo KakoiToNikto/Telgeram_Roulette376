@@ -14,11 +14,8 @@ lobby_router = Router()
 
 
 class Lobby:
-    def __init__(self):
+    def __init__(self) -> None:
         self.players = []  #список игроков, которые вступили в игру
-
-    # def clear(self):
-    #     pass
 
 
 @lobby_router.callback_query(F.data == "break_game")
@@ -125,7 +122,7 @@ async def get_the_game(call: types.CallbackQuery):
     del active_lobbies[chat_id]    #лобби нам больше не нужно, есть только игра
 
     await call.answer()     #чтобы inline кнопка считала ответ, нужен обязаиельно answer
-    await call.message.edit_text(f"{call.from_user.username} присоединился к игре!\n<b>Игра начинается. {lobby.players[0].username} и {lobby.players[1].username}, удачи!🤞</b>")
+    await call.message.edit_text(f"{call.from_user.username} присоединился к игре!\n<b>Игра начинается. {(call.bot.get_chat(lobby.players[0])).username} и {(call.bot.get_chat(lobby.players[1])).username}, удачи!🤞</b>")
     await asyncio.sleep(1)
 
 
