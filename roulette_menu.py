@@ -30,4 +30,30 @@ def before_game_menu():
 )
     return menu.as_markup()
 
-#Реализовать обе функции before_game_menu() позже
+def actions_menu():
+    menu = InlineKeyboardBuilder()
+    menu.row(
+        InlineKeyboardButton(text="Выстрелить в противника", callback_data="shoot_emeny"),
+        InlineKeyboardButton(text="Выстрелить в себя", callback_data="shoot_myself"),
+    )
+    menu.row(
+        InlineKeyboardButton(text="Использовать предметы", callback_data="use_items"),
+    )
+    return menu.as_markup()
+
+def items_menu():
+    menu = InlineKeyboardBuilder()
+    menu.row(
+        InlineKeyboardButton(text=f"Бинт({bint_count}шт.)", callback_data="Bint"),
+        InlineKeyboardButton(text=f"Магнит({magnet_count})", callback_data="Magnet")
+    )
+    menu.row(
+        InlineKeyboardButton(text=f"Лупа({magnifying_glass_count}шт.)", callback_data="magnifying_glass"),
+        InlineKeyboardButton(text=f"Зажиг-ый снаряд({fire_bullet_count})", callback_data="fire_bullet")
+    )
+    menu.row(
+        InlineKeyboardButton(text=f"Наручники({handcuffes_count}шт.)", callback_data="handcuffes"),
+    )
+    return menu.as_markup()
+
+#импортировать все подсчеты предметов, сделать после реализации use_items
