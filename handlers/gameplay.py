@@ -1,5 +1,7 @@
 import asyncio
 import textwrap
+from enum import Enum, auto
+from unittest.mock import call     #для состояний игры(чей ход и пр.)
 
 from aiogram import types, Router, F
 
@@ -10,16 +12,26 @@ from .tracking import active_games
 
 gameplay_router = Router()
 
+class GameState(Enum):
+    PREPARE_ROUND = auto()
+    PLAYERS_TURN = auto()
+    END_ROUND = auto()
+    GAME_OVER = auto()  
+
 #фильтр, чтобы каждый игрок ходил по очереди
-async def start_round(state):
+
+async def prepare_round(game_data: GameSession):     #state=PREPARE_ROUND
     pass
 
-
-@gameplay_router.message()
-async def choose_actions():
+async def choose_actions(game_data: GameSession):     #state=PLAYERS_TURN
     pass
     #тут будет показываться actions_menu
 
+async def end_round(game_data: GameSession):     #state=END_ROUND
+    pass
+
+def is_game_over(game_data: GameSession) -> bool:     #state=GAME_OVER
+    pass
 #----------------------------------------------------------------------------------
 async def shoot_logic(bot, game_data: GameSession, player_id: int, shoot_enemy: bool, current_player):
     #реализовать проверку, связанные с предметами(наручники, поджигательные снаряды и пр.) + добавить провеику текущего игрока
@@ -50,6 +62,7 @@ async def shoot_logic(bot, game_data: GameSession, player_id: int, shoot_enemy: 
             if game_data.players[player_id]["hp"] <= 0:
                 await bot.send_message(chat_id=game_data.chat_id, text=f"Этот день оказался последним для тебя, {player_username}...\nТы храбро играл, но вышел из игры проигравшим.😔\n<b>{enemy_username}, поздравляю тебя с победой!</b>\nКОНЕЦ ИГРЫ💯")
                 #тут еще нужно добавить позже итоговую таблицу на каждого игрока: всего ходов, использованно предмтов и пр.
+
 
 
 @gameplay_router.callback_query(F.data == "shoot_enemy")
@@ -114,7 +127,24 @@ async def use_handcuffes(call: types.CallbackQuery):
 
 
 #------------------------------------------------------------------------------------
-def is_game_over(self, chat_id, players: dict) -> bool:
-    pass
+async def Game_Engine(bot, session: GameSession):
+    if session.state == GameState.PREPARE_ROUND:
+        prepare_round(game_data)
+        pass
+    elif session.state == GameState.PLAYERS_TURN:
+        #логика хода игроков
+        pass
+    elif session.state == GameState.END_ROUND:
+        #логика окончания раунда
+        pass
+    elif session.state == GameState.GAME_OVER:
+        #логика окончания игры
+        pass
+    else:
+        print("Ошибка: неизвестное состояние игры.")
+
+
+
+Game_Engine(call.bot, ) 
 
 #дописать логигу gameplay, функции и все меню

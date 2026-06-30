@@ -1,5 +1,7 @@
 import random
 
+from .gameplay import GameState
+
 def bullets_position(real, fake):
     bullets = [1] * real + [0] * fake
     random.shuffle(bullets)
@@ -42,6 +44,8 @@ class GameSession:
 
         self.player1 = p1_id    #для более приятной читаемости
         self.player2 = p2_id
+
+        self.state = GameState.PREPARE_ROUND   #начальное состояние игры - подготовка к раунду, потом в функциях меняем и обновляем в движке gameplay.py
         
     def next_turn(self):       #на будущее, в gameplay пригодится
         if self.current_player == self.player1:
