@@ -1,6 +1,6 @@
 import random
 
-from .gameplay import GameState
+from gamestate import GameState
 
 def bullets_position(real, fake):
     bullets = [1] * real + [0] * fake
@@ -9,17 +9,19 @@ def bullets_position(real, fake):
 
 
 class GameSession:
-    def __init__(self, player_ids: list[int], chat_id: int):
+    def __init__(self, player_ids: list[int], players_names: list[str], chat_id: int):
         """
         player_ids: список из двух ID игроков (из lobby.players)
         chat_id: ID чата (для логгирования или БД)
         """
         p1_id, p2_id = player_ids
+        p1_name, p2_name = players_names
         self.HP = 5
 
         self.players = {
             p1_id: {
                 "id": p1_id,
+                "username": p1_name,
                 "hp": self.HP,
                 "is_alive": True,
                 "is_handcuffed": False,
@@ -27,6 +29,7 @@ class GameSession:
             },
             p2_id: {
                 "id": p2_id,
+                "username": p2_name,
                 "hp": self.HP,
                 "is_alive": True,
                 "is_handcuffed": False, 
@@ -53,4 +56,7 @@ class GameSession:
         else:
             self.current_player = self.player1
 
+# #локальный тест
+# session = GameSession([11111, 22222], 376)
+# print(session.players, session.player1, session.player2, session.current_player, session.players[session.current_player]["is_alive"], sep="\n")
 

@@ -4,6 +4,7 @@ import textwrap
 from roulette_menu import before_game_menu
 from .session import GameSession
 from .tracking import active_games, active_lobbies
+from .gameplay import Game_Engine
 
 from aiogram import types, Router, F
 from aiogram.enums import ChatType
@@ -16,6 +17,7 @@ lobby_router = Router()
 class Lobby:
     def __init__(self) -> None:
         self.players = []  #список игроков, которые вступили в игру
+        self.players_names = []
 
 
 @lobby_router.callback_query(F.data == "break_game")
@@ -75,7 +77,10 @@ async def matchmaking(message: types.Message):
         lobby = Lobby()
 
         p1 = message.from_user.id   #первый игрок - это тот, кто вызвал команду /play - сразу определили его
-        lobby.players.append(p1)
+        p1_name = message.from_user.username
+
+        lobby.players.append(p1)    
+        lobby.players_names.append(p1_name)    #добавляем имя второго игрока в список имен
         active_lobbies[chat_id] = lobby
 
     else:   #(messgae.chat.type == types.ChatType.PRIVATE)
@@ -102,6 +107,8 @@ async def get_the_game(call: types.CallbackQuery):
         return
 
     p2 = call.from_user.id      #второй игрок - это тот, кто нажал кнопку "Вступить в игру"
+    p2_name = call.from_user.username
+
     lobby = active_lobbies[chat_id]
 
     if p2 == lobby.players[0]:      #если второй игрок - это тот же, кто вызвал команду /play, то он не может вступить в игру
@@ -116,13 +123,20 @@ async def get_the_game(call: types.CallbackQuery):
         return
     
     lobby.players.append(p2)    #добавляем второго игрока в список игроков
+    lobby.players_names.append(p2_name)  #добавляем имя второго игрока в список имен
 
-    game_session = GameSession(lobby.players, chat_id)
+    game_session = GameSession(lobby.players, lobby.players_names, chat_id)
     active_games[chat_id] = game_session    #добавляем сессию игры в активные игры, чтобы можно было отслеживать, кто в игре
     del active_lobbies[chat_id]    #лобби нам больше не нужно, есть только игра
 
     await call.answer()     #чтобы inline кнопка считала ответ, нужен обязаиельно answer
     await call.message.edit_text(f"{call.from_user.username} присоединился к игре!\n<b>Игра начинается. {(call.bot.get_chat(lobby.players[0])).username} и {(call.bot.get_chat(lobby.players[1])).username}, удачи!🤞</b>")
+
     await asyncio.sleep(1)
+    await Game_Engine(sesion=game_session, bot=call.bot)
+    #запускаем 1 раз тут Game_Engone(движок игры), чтобы передать в него session.
+    #Дальше эта функция работает чисто на смене состояний вплоть до состояния GAME_OVER внутри gameplay.py
+
+
 
 

@@ -1,6 +1,7 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup)
 
+
 def roulette_menu_ruler():
     menu = InlineKeyboardBuilder()
     menu.row(
@@ -22,6 +23,7 @@ def get_back_menu():
 
     return  menu.as_markup()
 
+
 def before_game_menu():
     menu = InlineKeyboardBuilder()
     menu.row(
@@ -30,10 +32,11 @@ def before_game_menu():
 )
     return menu.as_markup()
 
+
 def actions_menu():
     menu = InlineKeyboardBuilder()
     menu.row(
-        InlineKeyboardButton(text="Выстрелить в противника", callback_data="shoot_emeny"),
+        InlineKeyboardButton(text="Выстрелить в противника", callback_data="shoot_enemy"),
         InlineKeyboardButton(text="Выстрелить в себя", callback_data="shoot_myself"),
     )
     menu.row(
@@ -41,7 +44,8 @@ def actions_menu():
     )
     return menu.as_markup()
 
-def items_menu():
+
+def items_menu(bint_count, magnet_count, magnifying_glass_count, fire_bullet_count, handcuffes_count):
     menu = InlineKeyboardBuilder()
     menu.row(
         InlineKeyboardButton(text=f"Бинт({bint_count}шт.)", callback_data="Bint"),
