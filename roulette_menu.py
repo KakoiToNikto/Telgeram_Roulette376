@@ -40,7 +40,7 @@ def actions_menu():
         InlineKeyboardButton(text="Выстрелить в себя", callback_data="shoot_myself"),
     )
     menu.row(
-        InlineKeyboardButton(text="Использовать предметы", callback_data="use_items"),
+        InlineKeyboardButton(text="Использовать предметы", callback_data="use_items"),      #вызывает items_menu
     )
     return menu.as_markup()
 
@@ -57,6 +57,9 @@ def items_menu(bint_count, magnet_count, magnifying_glass_count, fire_bullet_cou
     )
     menu.row(
         InlineKeyboardButton(text=f"Наручники({handcuffes_count}шт.)", callback_data="handcuffes"),
+    )
+    menu.row(
+        InlineKeyboardButton(text="Назад 🔙", callback_data="back_gameplay")
     )
     return menu.as_markup()
 

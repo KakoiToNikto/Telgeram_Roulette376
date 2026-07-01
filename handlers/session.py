@@ -49,8 +49,10 @@ class GameSession:
         self.player2 = p2_id
 
         self.state = GameState.PREPARE_ROUND   #начальное состояние игры - подготовка к раунду, потом в функциях меняем и обновляем в движке gameplay.py
+        self.round_number = 0   #считаем номера раундов
+        self.shots_number = 0   #считаем для итогов кол-во выстрелов
         
-    def next_turn(self):       #на будущее, в gameplay пригодится
+    def next_turn(self):
         if self.current_player == self.player1:
             self.current_player = self.player2
         else:
